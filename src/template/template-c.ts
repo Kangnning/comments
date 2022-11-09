@@ -26,7 +26,7 @@ export class CTemplate extends Template {
                 return fill.fillTemplate(oneDeleteTemplate, userCustom);
             }
         } else if (this.option === "add") {
-            if (this.isMultiple) {
+            if (this.status.length !== 0) {
                 return fill.fillTemplate(multipleAddTemplate, userCustom);
             } else {
                 return fill.fillTemplate(oneAddTemplate, userCustom);

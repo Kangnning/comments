@@ -3,8 +3,7 @@
 import * as vscode from 'vscode';
 import { languageMap } from './template';
 import Template from "./template";
-import { isValidKey, moveCursorEOF } from './util';
-import { pbkdf2 } from 'crypto';
+import { moveCursorEOF } from './util';
 
 interface InitObject {
 	editor: vscode.TextEditor | undefined,
@@ -107,7 +106,7 @@ function insertComment(ob: InitObject, option: string) {
 				if (index === 0) {
 					vscode.window.showInformationMessage("这行已经被注释了");
 				} else if (index === -1) {
-					const replaceStr: string = `${"".padEnd(spaceNum, " ")} /* ${text.slice(spaceNum)} ${comment.slice(3)}`;
+					const replaceStr: string = `${"".padEnd(spaceNum, " ")}/* ${text.slice(spaceNum)} ${comment.slice(3)}`;
 					ob.editor?.edit(editBuilder => editBuilder.replace(currentLineRange as vscode.Range, replaceStr));
 					moveCursorEOF(ob.editor as vscode.TextEditor, ob.active?.line as number);
 				} else {

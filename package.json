@@ -2,7 +2,10 @@
   "name": "comments",
   "displayName": "comments",
   "description": "This is create code comment what you nedd",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "publisher": "Kangnning",
+  "license": "SEE LICENSE IN LICENSE",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.51.0"
   },
@@ -14,6 +17,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Comments Configuration",
+      "properties": {
+        "comments.userConf": {
+          "type": "object",
+          "default": {
+            "name": "",
+            "date": "",
+            "description": ""
+          },
+          "description": "写入相关配置,默认配置:{'name':'','date':'','description':''}\ndate不填写时将为当天时间,填写时将默认写死\ndescription填写时将追加到注释中,不填写则不做追加"
+        }
+      }
+    },
     "commands": [
       {
         "command": "comments.delete",
@@ -47,7 +65,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.73.0",
+    "@types/vscode": "^1.51.0",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",
