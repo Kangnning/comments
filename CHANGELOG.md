@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * 支持更多的语言，目前暂时只支持C
 * 将注释模板化，可自行填充相关配置
 
+## [0.1.0] - 2022-11-22
+
+### Added
+
+* 行内字符串替换功能
+
+### Changed
+
+* 修改了注释添加删除时的快捷键
+
 ## [0.0.2] - 2022-11-09
 
 ### Added

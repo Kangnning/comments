@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { languageMap } from './template';
 import Template from "./template";
-import { moveCursorEOF } from './util';
+import { moveCursorEOF, searchChar } from './util';
 
 interface InitObject {
 	editor: vscode.TextEditor | undefined,
@@ -47,8 +47,13 @@ export function activate(context: vscode.ExtensionContext) {
 		insertComment(obj, "add");
 	});
 
+	let replace = vscode.commands.registerCommand('comments.replace', () => {
+		replaceString();
+	});
+
 	context.subscriptions.push(deleteComment);
 	context.subscriptions.push(addComment);
+	context.subscriptions.push(replace);
 }
 
 // This method is called when your extension is deactivated
@@ -153,4 +158,116 @@ function insertComment(ob: InitObject, option: string) {
 			}
 		}
 	}
+};
+
+// 处理替换字符串问题
+function replaceString() {
+	vscode.window.showInputBox({
+		'title': 'comments.replace',
+		'placeHolder': `格式为'(\$($start:$end/))?$src/$des(/g)?`,
+		'prompt': `start和end为开始结束行号,不写默认为当前光标所在行. '/g'填写则为全量替换,不写则只替换第一个出现的`
+	}).then(async input => {
+		if (typeof input === "undefined") {
+			vscode.window.showErrorMessage("No Input");
+			return;
+		}
+
+		// 去除前后空格并定义需要替换的字符串和替换后的字符串
+		input = input.trimStart().trimEnd();
+		let globalReplace: boolean = false;
+		let beforeReplace: string;
+		let afterReplace: string;
+		if (input.slice(-2) === "/g") {
+			globalReplace = true;
+		}
+
+		// 获取该输入中有多少个“/”
+		let slashIndex: number[] = searchChar(input, "/");
+
+		if (slashIndex.length < 1 || slashIndex.length > 3) {
+			vscode.window.showErrorMessage('Input Error!');
+			return;
+		}
+
+		// 定义TextEditor和selection
+		const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+		if (typeof editor === "undefined") {
+			vscode.window.showErrorMessage("System Error");
+			return;
+		}
+		const select: vscode.Selection = editor.selection;
+
+		// 定义开始行和结束行
+		let start: number = -1;
+		let end: number = -1;
+
+		if (input[0] === "$") {
+			const colonIndex: number = input.indexOf(":");
+			if (colonIndex === -1) {
+				start = parseInt(input.substring(1, slashIndex[0])) - 1;
+				if (start === NaN) {
+					vscode.window.showErrorMessage("Input Error!");
+					return;
+				}
+				end = start;
+			} else {
+				start = parseInt(input.substring(1, colonIndex)) - 1;
+				if (start === NaN) {
+					vscode.window.showErrorMessage("Input Error!");
+					return;
+				}
+
+				end = parseInt(input.substring(colonIndex + 1, slashIndex[0])) - 1;
+				if (end === NaN) {
+					vscode.window.showErrorMessage("Input Error!");
+					return;
+				}
+			}
+			beforeReplace = input.substring(slashIndex[0] + 1, slashIndex[1]);
+			afterReplace = input.substring(slashIndex[1] + 1, slashIndex[2] ? slashIndex[2] : undefined);
+		} else {
+			if (typeof select === "undefined") {
+				vscode.window.showErrorMessage("This is a system error!");
+				return;
+			}
+			const activeLine: vscode.Position = select.active;
+			start = activeLine.line;
+			end = start;
+
+			beforeReplace = input.substring(0, slashIndex[0]);
+			afterReplace = input.substring(slashIndex[0] + 1, slashIndex[1] ? slashIndex[1] : undefined);
+		}
+
+		// 如果开始行和结束行在同一行
+		let replaceText: string;
+		let flag: boolean = false;
+		if (start === end) {
+			const currentLineRange: vscode.Range = editor.document.lineAt(start).range;
+			const text: string = editor.document.getText(currentLineRange);
+			if (globalReplace) {
+				replaceText = text.replaceAll(beforeReplace, afterReplace);
+			} else {
+				replaceText = text.replace(beforeReplace, afterReplace);
+			}
+			editor.edit(editBuilder => editBuilder.replace(currentLineRange, replaceText));
+			moveCursorEOF(editor, start);
+		} else {
+			while (start <= end) {
+				const currentLineRange: vscode.Range = editor.document.lineAt(start).range;
+				const text: string = editor.document.getText(currentLineRange);
+				console.log(text);
+				if (globalReplace) {
+					replaceText = text.replaceAll(beforeReplace, afterReplace);
+				} else {
+					replaceText = text.replace(beforeReplace, afterReplace);
+					if (replaceText !== text) { flag = true; }
+				}
+				await editor.edit(editBuilder => editBuilder.replace(currentLineRange, replaceText));
+				start++;
+				if (flag) { break; }
+			}
+			moveCursorEOF(editor, start - 1);
+		}
+
+	});
 };

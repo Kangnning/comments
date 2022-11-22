@@ -40,16 +40,24 @@
       {
         "command": "comments.add",
         "title": "Add Code Comment"
+      },
+      {
+        "command": "comments.replace",
+        "title": "Replace This Line"
       }
     ],
     "keybindings": [
       {
         "command": "comments.delete",
-        "key": "Ctrl+K D"
+        "key": "Ctrl+; D"
       },
       {
         "command": "comments.add",
-        "key": "Ctrl+K A"
+        "key": "Ctrl+; A"
+      },
+      {
+        "command": "comments.replace",
+        "key": "Ctrl+; R"
       }
     ]
   },
