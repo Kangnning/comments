@@ -25,10 +25,7 @@ export function getUserCustom(): UserConf {
 
     if (userCustom.date.length === 0) {
         const nowDate = new Date();
-        userCustom.date = `${nowDate.getFullYear()
-            .toString()}${(nowDate.getMonth() + 1)
-                .toString()}${nowDate.getDate() + 1
-                    .toString().padStart(2, "0")}`;
+        userCustom.date = `${nowDate.getFullYear()}${(nowDate.getMonth() + 1)}${nowDate.getDate().toString().padStart(2, "0")}`;
     }
 
     if (userCustom.name.length === 0) {
