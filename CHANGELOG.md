@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * 支持更多的语言，目前暂时只支持C
 * 将注释模板化，可自行填充相关配置
 
+## [0.1.1] - 2022-11-30
+
+### fixed
+
+* 修复了生成注释时日期错误的问题
+
 ## [0.1.0] - 2022-11-22
 
 ### Added
